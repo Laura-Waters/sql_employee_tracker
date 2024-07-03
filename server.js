@@ -18,7 +18,22 @@ const pool = new Pool(
     console.log(`Connected to the employee_db database.`)
 )
 
-pool.connect(); 
+pool.connect();   
+
+// Sample input data
+const inputData = {
+    tableName: 'employees',
+    columns: ['id INT', 'name VARCHAR(50)', 'role VARCHAR(50)']
+  };
+  
+  // Create a table based on the input data
+  const createTableQuery = `CREATE TABLE ${inputData.tableName} (${inputData.columns.join(', ')})`;
+  
+  // Execute the create table query
+  connection.query(createTableQuery, (error, results, fields) => {
+    if (error) throw error;
+    console.log('Table created successfully');
+});
 
 
 // MIDDLEWARES 

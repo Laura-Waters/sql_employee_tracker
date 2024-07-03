@@ -18,17 +18,31 @@ inquirer
       when: (answers) => answers.options.includes('Add Department')
     }, 
     {
-        type: 'input',
-        message: ('What is the role?'),
-        name: 'roleName',
-        when: (answers) => answers.options.includes('Add Role')
+      type: 'input',
+      message: ('What is the role?'),
+      name: 'roleName',
+      when: (answers) => answers.options.includes('Add Role')
       },
   ])
-  .then((data) => {
-    const filename = `${data.name.toLowerCase().split(' ').join('')}.json`;
-
-    fs.writeFile(filename, JSON.stringify(data, null, '\t'), (err) =>
-      err ? console.log(err) : console.log('Success!')
-    );      
+  .then((answers) => {
+    answers.options.forEach((option) => {
+        switch (option) {
+            case 'View All Departments':
+                pool.query('SELECT * FROM department', (err, res) => {
+                    if (err) {
+                        console.error('Error viewing all departments:', err);
+                    } else {
+                        console.log('All departments:', res.rows);
+                    }
+                });
+                break;
+            // Add cases for other options as needed
+        }
+    });
   });
+
+    // fs.writeFile(filename, JSON.stringify(data, null, '\t'), (err) =>
+    //   err ? console.log(err) : console.log('Success!')
+    // );      
+  
 
