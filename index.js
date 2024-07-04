@@ -56,6 +56,31 @@ function askQuestions() {
         },
         when: (answers) => answers.salary
       },
+      {
+        type: 'input',
+        message: 'What is their first name?',
+        name: 'firstName',
+        when: (answers) => answers.options.includes('Add Employee')
+      },   
+      {
+        type: 'input',
+        message: 'What is their last name?',
+        name: 'lastName',
+        when: (answers) => answers.firstName  
+      },
+      {
+        type: 'list',
+        message: 'What is their role?',
+        name: 'employeeRole',
+        choices: async () => {
+          const roles = await pool.query('SELECT id, title FROM roles');
+          return roles.rows.map(role => ({
+            name: role.title, 
+            value: role.id
+          }));
+        },
+        when: (answers) => answers.lastName
+      },
     ])
   .then((answers) => {
     switch (answers.options) {
@@ -68,6 +93,7 @@ function askQuestions() {
                 console.log('All departments:', departmentsResult.rows);
             }
         });
+        askQuestions();
         break;
       // VIEW ALL ROLES 
       case 'View All Roles':
@@ -78,6 +104,7 @@ function askQuestions() {
               console.log('All roles:', rolesResult.rows);
           }
       });
+        askQuestions();
         break;
       // VIEW ALL EMPLOYEES 
       case 'View All Employees':
@@ -88,6 +115,7 @@ function askQuestions() {
               console.log('All employees:', employeesResult.rows);
           }
       });
+        askQuestions();
         break;
       // ADD DEPARTMENT 
       case 'Add Department':
@@ -99,11 +127,12 @@ function askQuestions() {
           console.log(`Added ${answers.departmentName} department`);
         }
         });
+        askQuestions();
         break; 
       }
       // ADD ROLE 
       case 'Add Role':
-          if (answers.roleName && answers.salary) {
+          if (answers.roleName && answers.salary && answers.departmentId) {
           pool.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answers.roleName}', '${answers.salary}', '${answers.departmentId}')`, (err, res) => {
           if (err) {
             console.error('Error adding role:', err);
@@ -111,9 +140,23 @@ function askQuestions() {
             console.log(`Added ${answers.roleName} role`);
           }
           });
+          askQuestions();
           break;
-      };
-      askQuestions();   
+      }
+       // ADD EMPLOYEE  
+       case 'Add Employee':
+        if (answers.firstName && answers.lastName) {
+        pool.query(`INSERT INTO employees (first_name, last_name, role_id) VALUES ('${answers.firstName}', '${answers.lastName}', '${answers.employeeRole}')`, (err, res) => {
+        if (err) {
+          console.error('Error adding employee:', err);
+        } else {
+          console.log(`Added new employee: '${answers.firstName}' '${answers.lastName}'`);
+        }
+        });   
+        askQuestions();
+        break;
+        
+    }  
   }})
 
 }; 
