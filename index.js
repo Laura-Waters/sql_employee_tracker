@@ -21,19 +21,19 @@ function askQuestions() {
     .prompt([
       {
         type: 'list',
-        message: ('What would you like to do?'),
+        message: 'What would you like to do?',
         name: 'options',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role'],
       },
       {
         type: 'input',
-        message: ('What is the name of the department?'),
+        message: 'What is the name of the department?',
         name: 'departmentName',
         when: (answers) => answers.options.includes('Add Department')
       }, 
       {
         type: 'input',
-        message: ('What is the role?'),
+        message: 'What is the role?',
         name: 'roleName',
         when: (answers) => answers.options.includes('Add Role')
         },
@@ -66,10 +66,23 @@ function askQuestions() {
                 console.log('All employees:', employeesResult.rows);
             }
         });
+         break;
+         case 'Add Department':
+          if (answers.departmentName) {
+          pool.query(`INSERT INTO departments (department_name) VALUES ('${answers.departmentName}')`, (err, res) => {
+          if (err) {
+            console.error('Error adding department:', err);
+          } else {
+            console.log(`Added ${answers.departmentName} department`);
+          }
+          });
           break;
-        }
-        askQuestions();
-  });
+        };
+        
+  } 
+  askQuestions();
+});
+
 }; 
 
 askQuestions();
