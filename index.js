@@ -19,7 +19,7 @@ pool.connect();
 function askQuestions() {
   inquirer
     .prompt([
-      {
+      { 
         type: 'list',
         message: 'What would you like to do?',
         name: 'options',
@@ -96,6 +96,34 @@ function askQuestions() {
         },
         when: (answers) => answers.employeeRole
       },
+      {
+        type: 'list',
+        message: 'Whose role would you like to update?',   
+        name: 'selectEmployee',
+        choices: async () => {
+          const employees = await pool.query('SELECT * FROM employees');
+          const employeeChoices = employees.rows.map(employee => ({
+            name: `${employee.first_name} ${employee.last_name}`, 
+            value: employee.id
+          }));   
+          return employeeChoices; 
+        },
+        when: (answers) => answers.options.includes('Update Employee Role')
+      },
+      {
+        type: 'list',
+        message: 'What role would you like to assign to them?',   
+        name: 'selectRole',
+        choices: async () => {
+          const roles = await pool.query('SELECT * FROM roles');
+          const roleChoices = roles.rows.map(role => ({
+            name: role.title, 
+            value: role.id
+          }));   
+          return roleChoices; 
+        },
+        when: (answers) => answers.selectEmployee
+      },
     ])   
   .then((answers) => {
     switch (answers.options) {
@@ -169,9 +197,21 @@ function askQuestions() {
           askQuestions();
         }
         }); 
-        break;
-        
+        break; 
     }  
+      // UPDATE EMPLOYEE ROLE 
+      case 'Update Employee Role':
+        if (answers.selectEmployee && answers.selectRole) {
+        pool.query(`UPDATE employees SET role_id = ${answers.selectRole} WHERE id = ${answers.selectEmployee}`, (err, res) => {
+        if (err) {
+          console.error('Error updating employee role:', err);
+        } else {
+          console.log(`Updated employee role`);   
+          askQuestions();
+        }
+        }); 
+        break; 
+    } 
   }})
 
 }; 
