@@ -80,8 +80,23 @@ function askQuestions() {
           }));
         },
         when: (answers) => answers.lastName
+      },   
+      {
+        type: 'list',
+        message: 'Who is their manager?',   
+        name: 'employeeManager',
+        choices: async () => {
+          const employees = await pool.query('SELECT * FROM employees');
+          const employeeChoices = employees.rows.map(employee => ({
+            name: `${employee.first_name} ${employee.last_name}`, 
+            value: employee.id
+          }));   
+          employeeChoices.unshift({ name: 'None', value: null });
+          return employeeChoices; 
+        },
+        when: (answers) => answers.employeeRole
       },
-    ])
+    ])   
   .then((answers) => {
     switch (answers.options) {
       // VIEW ALL DEPARTMENTS 
@@ -90,10 +105,10 @@ function askQuestions() {
             if (err) {
                 console.error('Error viewing all departments:', err);
             } else {
-                console.log('All departments:', departmentsResult.rows);
+                console.log('All departments:', departmentsResult.rows);   
+                askQuestions();
             }
         });
-        askQuestions();
         break;
       // VIEW ALL ROLES 
       case 'View All Roles':
@@ -102,9 +117,9 @@ function askQuestions() {
               console.error('Error viewing all roles:', err);
           } else {
               console.log('All roles:', rolesResult.rows);
+              askQuestions();
           }
       });
-        askQuestions();
         break;
       // VIEW ALL EMPLOYEES 
       case 'View All Employees':
@@ -112,10 +127,10 @@ function askQuestions() {
           if (err) {
               console.error('Error viewing all employees:', err);
           } else {
-              console.log('All employees:', employeesResult.rows);
+              console.log('All employees:', employeesResult.rows);   
+              askQuestions();
           }
       });
-        askQuestions();
         break;
       // ADD DEPARTMENT 
       case 'Add Department':
@@ -124,10 +139,10 @@ function askQuestions() {
         if (err) {
           console.error('Error adding department:', err);
         } else {
-          console.log(`Added ${answers.departmentName} department`);
+          console.log(`Added ${answers.departmentName} department`);   
+          askQuestions();
         }
         });
-        askQuestions();
         break; 
       }
       // ADD ROLE 
@@ -137,23 +152,23 @@ function askQuestions() {
           if (err) {
             console.error('Error adding role:', err);
           } else {
-            console.log(`Added ${answers.roleName} role`);
+            console.log(`Added ${answers.roleName} role`);   
+            askQuestions();
           }
           });
-          askQuestions();
           break;
       }
        // ADD EMPLOYEE  
        case 'Add Employee':
         if (answers.firstName && answers.lastName) {
-        pool.query(`INSERT INTO employees (first_name, last_name, role_id) VALUES ('${answers.firstName}', '${answers.lastName}', '${answers.employeeRole}')`, (err, res) => {
+        pool.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${answers.firstName}', '${answers.lastName}', '${answers.employeeRole}', '${answers.employeeManager}')`, (err, res) => {
         if (err) {
           console.error('Error adding employee:', err);
         } else {
-          console.log(`Added new employee: '${answers.firstName}' '${answers.lastName}'`);
+          console.log(`Added new employee: ${answers.firstName} ${answers.lastName}`);   
+          askQuestions();
         }
-        });   
-        askQuestions();
+        }); 
         break;
         
     }  
