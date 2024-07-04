@@ -16,44 +16,72 @@ const pool = new Pool(
 
 pool.connect();   
 
-inquirer
-  .prompt([
-    {
-      type: 'list',
-      message: ('What would you like to do?'),
-      name: 'options',
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role'],
-    },
-    {
-      type: 'input',
-      message: ('What is the name of the department?'),
-      name: 'departmentName',
-      when: (answers) => answers.options.includes('Add Department')
-    }, 
-    {
-      type: 'input',
-      message: ('What is the role?'),
-      name: 'roleName',
-      when: (answers) => answers.options.includes('Add Role')
+function askQuestions() {
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        message: ('What would you like to do?'),
+        name: 'options',
+        choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role'],
       },
-  ])
+      {
+        type: 'input',
+        message: ('What is the name of the department?'),
+        name: 'departmentName',
+        when: (answers) => answers.options.includes('Add Department')
+      }, 
+      {
+        type: 'input',
+        message: ('What is the role?'),
+        name: 'roleName',
+        when: (answers) => answers.options.includes('Add Role')
+        },
+    ])
   .then((answers) => {
-    switch (answers.options) {
-      case 'View All Departments':
-          pool.query('SELECT * FROM departments', (err, res) => {
+      switch (answers.options) {
+        case 'View All Departments':
+          pool.query('SELECT * FROM departments', (err, departmentsResult) => {
               if (err) {
                   console.error('Error viewing all departments:', err);
               } else {
-                  console.log('All departments:', res.rows);
+                  console.log('All departments:', departmentsResult.rows);
               }
           });
           break;
-            
+        case 'View All Roles':
+          pool.query('SELECT * FROM roles', (err, rolesResult) => {
+            if (err) {
+                console.error('Error viewing all roles:', err);
+            } else {
+                console.log('All roles:', rolesResult.rows);
+            }
+        });
+        break;
+        case 'View All Employees':
+          pool.query('SELECT * FROM employees', (err, employeesResult) => {
+            if (err) {
+                console.error('Error viewing all employees:', err);
+            } else {
+                console.log('All employees:', employeesResult.rows);
+            }
+        });
+          break;
         }
+        askQuestions();
   });
+}; 
+
+askQuestions();
+
+
+
+
+
 
     // fs.writeFile(filename, JSON.stringify(data, null, '\t'), (err) =>
     //   err ? console.log(err) : console.log('Success!')
     // );      
   
 
+    
