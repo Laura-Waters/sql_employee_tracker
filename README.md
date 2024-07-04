@@ -7,7 +7,7 @@ This application was created to keep track of employee data. It allows users to 
 
 ## Installation
 
-Inquirer, express, and pg packages should be installed for use. 
+Node.js, Inquirer, and PostgreSQL should be installed for use. 
 
 ## Usage
 
